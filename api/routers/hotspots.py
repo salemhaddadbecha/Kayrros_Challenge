@@ -1,6 +1,5 @@
 from fastapi import APIRouter, Query, Depends
 from sqlalchemy.orm import Session
-from sqlalchemy import text
 from api.models import Hotspot, Cluster
 from utils.schemas import HotspotRead, ClusterRead
 from datetime import datetime, timedelta
