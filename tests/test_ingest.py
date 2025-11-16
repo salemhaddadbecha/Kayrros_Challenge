@@ -1,39 +1,31 @@
 from api.ingest import parse_datetime
-
-
-# import pytest
-# from api.ingest import ingest_firms_csv
-# from sqlalchemy import create_engine, text
-#
-# # Use a temporary database for testing
-# TEST_DB_URL = "postgresql://postgres:postgres@postgres:5432/kayrros_hotspots"
-#
-#
-# @pytest.fixture
-# def db_engine():
-#     engine = create_engine(TEST_DB_URL)
-#     yield engine
-#     # cleanup after test
-#     with engine.connect() as conn:
-#         conn.execute(text("DELETE FROM live.hotspot"))
-#         conn.commit()
-#
-#
-# def test_ingest_csv(db_engine):
-#     # sample CSV data (could also use a small file from static/input)
-#     sample_csv = "tests/sample_firms.csv"
-#
-#     # Call your ingestion function
-#     ingest_firms_csv(sample_csv, source="FIRMS_MODIS", engine=db_engine)
-#
-#     # Assert data was inserted
-#     with db_engine.connect() as conn:
-#         result = conn.execute(text("SELECT COUNT(*) FROM live.hotspot"))
-#         count = result.scalar()
-#         assert count > 0
+from api.models import Hotspot
+from shapely.geometry import Point
+from geoalchemy2.shape import from_shape
+from datetime import datetime, timezone
 
 
 def test_parse_datetime():
     dt = parse_datetime("2025-11-06", 730)
     assert dt.hour == 7
     assert dt.minute == 30
+
+
+def test_geometry_conversion():
+    point = Point(10.0, 20.0)
+    geo = from_shape(point, srid=4326)
+    assert geo is not None
+    # Check that geo has correct SRID attribute (optional)
+    assert hasattr(geo, "desc")  # geoalchemy2 returns a WKBElement with .desc
+
+
+def test_hotspot_object_creation():
+    sensing_time = datetime.now(timezone.utc)
+    point = from_shape(Point(10, 20), srid=4326)
+    h = Hotspot(
+        sensing_time=sensing_time, geometry=point, source="MODIS", cluster_id=None
+    )
+    assert h.sensing_time == sensing_time
+    assert h.source == "MODIS"
+    assert h.cluster_id is None
+    assert h.geometry is not None

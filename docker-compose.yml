@@ -1,6 +1,6 @@
 services:
   postgres:
-    image: postgis/postgis:16-3.4
+    image: postgis/postgis:16-3.4 #Postgis For Geolocalisation
     container_name: kayrros-postgres
     environment:
       POSTGRES_DB: ${DB_NAME:-kayrros_hotspots}
@@ -9,10 +9,10 @@ services:
     ports:
       - "${DB_PORT:-5433}:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
-      - ./db/schema:/docker-entrypoint-initdb.d
+      - postgres_data:/var/lib/postgresql/data #Data of persistance
+      - ./db/schema:/docker-entrypoint-initdb.d #Init of live schema
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres} -d ${DB_NAME:-kayrros_hotspots}"]
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres} -d ${DB_NAME:-kayrros_hotspots}"] #Verifiy health check
       interval: 10s
       timeout: 5s
       retries: 5
@@ -39,6 +39,8 @@ services:
       - ./api:/app/api
       - ./utils:/app/utils
       - ./static:/app/static
+      - ./logs:/app/logs  # ensure logs are visible on host
+
     networks:
       - kayrros-network
     restart: unless-stopped

@@ -10,8 +10,6 @@ This system provides real-time fire detection data to help firefighters and emer
 - **Monitor fire evolution** across different satellite sources
 - **Query historical patterns** for risk assessment and resource allocation
 
-
-
 ## Project Objectives
 
 Build a **small, production-ready system** that:
@@ -38,6 +36,7 @@ Build a **small, production-ready system** that:
 │       └── live.sql        # Database schema (hotspot & cluster tables)
 ├── utils/
 │   └── schemas.py          # Pydantic schemas for validation
+├── logs                   # Logs folder containing logs for each execution
 ├── db.py                   # DB session and engine
 ├── api_launch.py                  # FastAPI app entrypoint
 ├── static/input/           # Sample CSVs
@@ -123,33 +122,39 @@ docker-compose logs -f postgres
 ### 2. Run Ingestion Script
 ```bash
 docker-compose exec api python api/ingest.py
+#Or: docker-compose exec api python -m api.ingest
 ```
 This fetches the latest fire hotspots from NASA FIRMS and inserts them into the database.
 cluster_id is currently null as clustering is not implemented yet.
+
+#### Logs
+Ingestion logs are automatically generated in the logs/ directory.
+- Each run creates a file named: logs/ingestion_<timestamp>.log
+- Logs include:
+  - Timestamped execution details
+  - Source-by-source ingestion progress
+  - Number of discovered vs. inserted records 
+  - Skipped records due to duplication handling
+This ensures full traceability of the ingestion process for debugging, monitoring, and validation.
 
 ### 3. Connect to database: 
 ```bash
 psql -h localhost -p 5433 -U postgres -d kayrros_hotspots
 select * from live.hotspot;
+# SELECT ST_AsText(geometry) FROM live.hotspot; #Back geo to its orignal format
 ```
+
 ### Running Tests
 1. Install pytest:
 ```bash
 pip install pytest
 pytest tests/
 ```
-Planned / Next steps:
-- CSV ingestion tests: Verify ingest_firms_csv() correctly inserts hotspots into PostgreSQL without duplicates.
-- API endpoint tests: Ensure FastAPI endpoints return correct hotspots and cluster data.
-- Edge case handling: Test ingestion with missing or invalid data.
-- Integration tests: Run end-to-end flow: CSV → ingestion → database → API query.
-
 
 ### API Endpoints
 #### /hotspots/recent
 - Returns hotspots from the last 24h
 - Optional query parameters:
-    - bbox → Bounding box "min_lon,min_lat,max_lon,max_lat"
     - source → Filter by satellite source
 
 Each hotspot includes id, sensing_time, source, cluster_id, latitude, and longitude.
@@ -158,22 +163,42 @@ Each hotspot includes id, sensing_time, source, cluster_id, latitude, and longit
 - Returns all clusters with their associated hotspots.
 - Currently, clusters exist but cluster_id in hotspots is null.
 
+
+#### Continuous Integration (CI)
+This project uses GitHub Actions for continuous integration, running automatically on push and pull request events.
+
+The CI pipeline performs:
+
+- Python environment setup (Python 3.9)
+- Dependency installation
+- Unit tests execution with pytest
+- Code linting using flake8
+- Code formatting checks with black
+
+The workflow is defined in .github/workflows/python-tests.yml.
+
 ####  Clustering (Not Implemented)
-- Spatial proximity: group hotspots within X km
-- Temporal proximity: group hotspots detected within Y hours
+- Spatial proximity: group hotspots within X km(Hotspots that are geographically close).
+- Temporal proximity: group hotspots detected within Y hours(Hotspots that occur around the same time).
 - Possible implementation:
-  - PostGIS ST_ClusterDBSCAN
-  - Custom SQL queries
+  - PostGIS ST_ClusterDBSCAN: directly cluster points in the database based on distance and optional time filtering.
+    - Custom SQL queries or Python Logic: 
+      - Fetch hotspots from the last 24–48 hours.
+      - Compute distances between points (Haversine or PostGIS geometry functions).
+      - Group points that are within distance X and time window Y into a cluster.
+      - Insert a row in the cluster table for each group.
+      - Update hotspot.cluster_id for each hotspot in that cluster.
 
 ### Next Steps / Improvements
 
 - Implement clustering logic to populate `cluster_id`
-- Add error handling for ingestion failures
 - Implement unit and integration tests for API endpoints
 - Add caching or pagination for large result sets
 
 ### LLM Usage
-- Used AI (ChatGPT) to help organize the README, suggest file structure, and improve clarity.
+AI assistance (ChatGPT) was used throughout the project to accelerate development and improve documentation quality.
+- README drafting and refinement:
+- Debugging guidance: assisted in diagnosing issues related to Docker, environment variables, SQLAlchemy sessions, and ingestion logic.
 
 ## Additional Resources
 

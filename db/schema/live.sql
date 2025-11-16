@@ -8,13 +8,14 @@ CREATE TYPE live.cluster_status AS ENUM (
     'FALSE_POSITIVE'
 );
 
+--stores clusters of hotspots
 CREATE TABLE live.cluster (
     id SERIAL,
     status live.CLUSTER_STATUS NOT NULL DEFAULT 'DETECTED',
     PRIMARY KEY (id)
 );
 CREATE INDEX ON live.cluster (status);
-
+--stores individual fire hotspots with geometry
 CREATE TABLE live.hotspot (
     id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     sensing_time TIMESTAMPTZ NOT NULL,
