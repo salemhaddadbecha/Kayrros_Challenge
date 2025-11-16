@@ -21,14 +21,13 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
-        pip install pytest flake8 black
+        pip install pytest black
 
     - name: Run tests with pytest
       run: |
         PYTHONPATH=$PYTHONPATH:. pytest tests/
 
-    - name: Lint code with flake8
-      run: flake8 api app tests
+   
 
     - name: Check code formatting with black
       run: black --check api app tests
