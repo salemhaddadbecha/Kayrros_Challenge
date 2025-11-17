@@ -6,6 +6,7 @@ from geoalchemy2.shape import to_shape
 from db import get_db
 from api.models import Hotspot, Cluster
 
+
 def compute_clusters(db: Session):
     """
     Compute DBSCAN clustering for hotspots within the last 48 hours.
@@ -19,9 +20,13 @@ def compute_clusters(db: Session):
     """
 
     # Get hotspots in time window
-    hotspots = db.query(Hotspot).filter(
-        Hotspot.sensing_time >= datetime.now(timezone.utc) - timedelta(hours=48)
-    ).all()
+    hotspots = (
+        db.query(Hotspot)
+        .filter(
+            Hotspot.sensing_time >= datetime.now(timezone.utc) - timedelta(hours=48)
+        )
+        .all()
+    )
 
     if not hotspots:
         return 0

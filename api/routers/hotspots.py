@@ -11,6 +11,7 @@ router = APIRouter()  # Create a FastAPI router instance to register endpoints
 
 VALID_SOURCES = {"FIRMS_MODIS", "FIRMS_SUOMI_VIIRS"}
 
+
 @router.get("/hotspots/recent", response_model=list[HotspotRead])
 def get_recent_hotspots(source: str = Query(None), db: Session = Depends(get_db)):
     """
@@ -60,6 +61,7 @@ def get_recent_hotspots(source: str = Query(None), db: Session = Depends(get_db)
         return result
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
 
 @router.get("/hotspots/clustered", response_model=list[ClusterRead])
 def get_clusters(db: Session = Depends(get_db)):

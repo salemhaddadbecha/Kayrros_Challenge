@@ -116,7 +116,7 @@ def ingest_firms_csv(url, source):
             if result.rowcount == 1:
                 inserted_count += 1
         except Exception as e:
-                logging.error(f"Failed inserting hotspot {h}: {e}")
+            logging.error(f"Failed inserting hotspot {h}: {e}")
 
     try:
         session.commit()  # Commit all inserts to the database

@@ -30,5 +30,5 @@ jobs:
    
 
     - name: Check code formatting with black
-      run: black --check api app tests
-    #black etl database utils tests
+      run: black --check api app tests ingestion
+    #black api app tests ingestion
