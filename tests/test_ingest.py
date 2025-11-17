@@ -1,4 +1,4 @@
-from api.ingest import parse_datetime
+from ingestion.ingest import parse_datetime
 from api.models import Hotspot
 from shapely.geometry import Point
 from geoalchemy2.shape import from_shape

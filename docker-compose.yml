@@ -37,6 +37,7 @@ services:
         condition: service_healthy
     volumes:
       - ./api:/app/api
+      - ./ingestion:/app/ingestion
       - ./utils:/app/utils
       - ./static:/app/static
       - ./logs:/app/logs  # ensure logs are visible on host

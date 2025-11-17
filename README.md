@@ -121,7 +121,7 @@ docker-compose logs -f postgres
 
 ### 2. Run Ingestion Script
 ```bash
-docker-compose exec api python api/ingest.py
+docker-compose exec api python ingestion/ingest.py
 #Or: docker-compose exec api python -m api.ingest
 ```
 This fetches the latest fire hotspots from NASA FIRMS and inserts them into the database.

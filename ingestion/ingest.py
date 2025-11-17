@@ -4,10 +4,10 @@ from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.orm import sessionmaker
 from geoalchemy2.shape import from_shape
 from shapely.geometry import Point
-from datetime import datetime
 import os
 from api.models import Hotspot
 import logging
+from datetime import datetime
 
 # Create logs directory if it does not exist
 os.makedirs("logs", exist_ok=True)
@@ -20,6 +20,7 @@ logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(levelname)s - %(message)s",
 )
+
 # Database connection Setup
 DB_URL = f"postgresql+psycopg2://{os.getenv('DB_USER', 'postgres')}:{os.getenv('DB_PASSWORD', 'postgres')}@{os.getenv('DB_HOST', 'postgres')}:{os.getenv('DB_PORT', 5432)}/{os.getenv('DB_NAME', 'kayrros_hotspots')}"
 # Create SQLAlchemy engine for connecting to PostgreSQL
@@ -64,7 +65,11 @@ def ingest_firms_csv(url, source):
         url (str): URL or local path to the CSV file
         source (str): Name of the satellite source (MODIS, VIIRS)
     """
-    df = pd.read_csv(url)  # Load CSV data into a pandas DataFrame
+    try:
+        df = pd.read_csv(url)  # Load CSV data into a pandas DataFrame
+    except Exception as e:
+        logging.error(f"Failed to load CSV from {url} for {source}: {e}")
+        return
     hotspots = []  # List to hold Hotspot objects before insertion
     for _, row in df.iterrows():
         sensing_time = parse_datetime(
@@ -87,29 +92,37 @@ def ingest_firms_csv(url, source):
     # Bulk insert with conflict handling
     inserted_count = 0
     for h in hotspots:
-        stmt = (
-            pg_insert(Hotspot)
-            .values(
-                sensing_time=h.sensing_time,
-                geometry=h.geometry,
-                source=h.source,
-                cluster_id=h.cluster_id,
+        try:
+            stmt = (
+                pg_insert(Hotspot)
+                .values(
+                    sensing_time=h.sensing_time,
+                    geometry=h.geometry,
+                    source=h.source,
+                    cluster_id=h.cluster_id,
+                )
+                .on_conflict_do_nothing(
+                    index_elements=[
+                        "sensing_time",
+                        "geometry",
+                        "source",
+                    ]  # Avoid duplicates on these columns
+                )
             )
-            .on_conflict_do_nothing(
-                index_elements=[
-                    "sensing_time",
-                    "geometry",
-                    "source",
-                ]  # Avoid duplicates on these columns
-            )
-        )
-        result = session.execute(stmt)  # Execute insert statement for each hotspot
 
-        # result.rowcount = 1 if inserted, 0 if skipped
-        if result.rowcount == 1:
-            inserted_count += 1
+            result = session.execute(stmt)  # Execute insert statement for each hotspot
 
-    session.commit()  # Commit all inserts to the database
+            # result.rowcount = 1 if inserted, 0 if skipped
+            if result.rowcount == 1:
+                inserted_count += 1
+        except Exception as e:
+                logging.error(f"Failed inserting hotspot {h}: {e}")
+
+    try:
+        session.commit()  # Commit all inserts to the database
+    except Exception as e:
+        session.rollback()
+        logging.error(f"Commit failed: {e}")
     # Log the ingestion summary
     logging.info(
         f"{source}: Found {len(hotspots)} records — Inserted {inserted_count} (skipped {len(hotspots) - inserted_count})."
