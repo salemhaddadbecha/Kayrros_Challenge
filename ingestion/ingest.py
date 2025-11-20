@@ -5,7 +5,7 @@ from sqlalchemy.orm import sessionmaker
 from geoalchemy2.shape import from_shape
 from shapely.geometry import Point
 import os
-from api.models import Hotspot
+from app.models.Hotspot import Hotspot
 import logging
 from datetime import datetime
 
@@ -70,7 +70,7 @@ def ingest_firms_csv(url, source):
     except Exception as e:
         logging.error(f"Failed to load CSV from {url} for {source}: {e}")
         return
-    hotspots = []  # List to hold Hotspot objects before insertion
+    hotspots = []  # List to hold models objects before insertion
     for _, row in df.iterrows():
         sensing_time = parse_datetime(
             row["acq_date"], row["acq_time"]

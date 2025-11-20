@@ -15,5 +15,5 @@ def overriden_root() -> RedirectResponse:
 def overridden_swagger() -> HTMLResponse:
     return get_swagger_ui_html(
         openapi_url="/openapi.json",
-        title="Kayrros Hotspot API",
+        title="Kayrros models API",
     )

@@ -1,5 +1,5 @@
 """
-Pydantic schemas for Hotspot and Cluster data validation and serialization.
+Pydantic schemas for models and Cluster data validation and serialization.
 Used in FastAPI API endpoints for request validation and response formatting.
 """
 from datetime import datetime
@@ -7,10 +7,10 @@ from pydantic import BaseModel
 from typing import Optional
 
 
-# Base schema for Hotspot
+# Base schema for models
 class HotspotBase(BaseModel):
     """
-    Base schema representing common fields of a Hotspot.
+    Base schema representing common fields of a models.
     Used as a parent for creation and read schemas.
     """
     sensing_time: datetime
@@ -19,7 +19,7 @@ class HotspotBase(BaseModel):
 
 class HotspotCreate(HotspotBase):
     """
-        Schema for creating a new Hotspot entry.
+        Schema for creating a new models entry.
         Inherits from HotspotBase, no additional fields required.
     """
     pass
@@ -27,7 +27,7 @@ class HotspotCreate(HotspotBase):
 
 class HotspotRead(HotspotBase):
     """
-        Schema for returning Hotspot data in API responses.
+        Schema for returning models data in API responses.
     """
     id: int
     cluster_id: Optional[int]

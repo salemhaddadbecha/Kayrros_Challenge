@@ -23,7 +23,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: kayrros-api
+    container_name: kayrros-app
     environment:
       DB_HOST: postgres
       DB_PORT: 5432
@@ -36,7 +36,7 @@ services:
       postgres:
         condition: service_healthy
     volumes:
-      - ./api:/app/api
+      - ./app:/app/app
       - ./ingestion:/app/ingestion
       - ./utils:/app/utils
       - ./static:/app/static

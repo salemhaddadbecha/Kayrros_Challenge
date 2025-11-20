@@ -1,5 +1,5 @@
 from ingestion.ingest import parse_datetime
-from api.models import Hotspot
+from app.models.Hotspot import Hotspot
 from shapely.geometry import Point
 from geoalchemy2.shape import from_shape
 from datetime import datetime, timezone

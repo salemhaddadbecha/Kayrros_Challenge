@@ -13,12 +13,14 @@ RUN apt-get update && apt-get install -y \
 # Copy pyproject.toml for dependency installation
 COPY pyproject.toml ./
 
+# Copy application code
+COPY . .
+
 # Install Python dependencies
 RUN pip install --upgrade pip \
     && pip install --no-cache-dir .
 
-# Copy application code
-COPY . .
+
 
 # Expose port
 EXPOSE 8000

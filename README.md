@@ -23,14 +23,15 @@ Build a **small, production-ready system** that:
 
 ```
 .
-├── api/
+├── ingestion/
 │   ├── ingest.py           # ETL / ingestion logic
-│   ├── models.py           # SQLAlchemy models
-│   └── routers/
-│       └── hotspots.py     # API endpoints
 ├── app/
-│   └── routers/
-│       └── docs.py 
+│   ├── models/           # SQLAlchemy models
+│     ├── Hotspot.py           # Hotspot model
+│     ├── Cluster.py           # Cluster model
+│   ├── routers/
+│       └── hotspots.py     # API endpoints
+│       └── docs.py     # API endpoints
 ├── db/
 │   └── schema/
 │       └── live.sql        # Database schema (hotspot & cluster tables)
@@ -112,17 +113,17 @@ Access the API at: http://localhost:8000/docs
 
 ```bash
 make docker-logs
-make docker-logs-api
+make docker-logs-app
 make docker-logs-db
 #Or: 
-docker-compose logs -f api
+docker-compose logs -f app
 docker-compose logs -f postgres
 ```
 
 ### 2. Run Ingestion Script
 ```bash
-docker-compose exec api python ingestion/ingest.py
-#Or: docker-compose exec api python -m api.ingest
+docker-compose exec app python ingestion/ingest.py
+#Or: docker-compose exec app python -m ingestion/ingest.py
 ```
 This fetches the latest fire hotspots from NASA FIRMS and inserts them into the database.
 cluster_id is currently null as clustering is not implemented yet.

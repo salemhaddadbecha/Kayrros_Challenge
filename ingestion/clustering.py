@@ -4,8 +4,8 @@ import numpy as np
 from sqlalchemy.orm import Session
 from geoalchemy2.shape import to_shape
 from db import get_db
-from api.models import Hotspot, Cluster
-
+from app.models.Hotspot import Hotspot
+from app.models.Cluster import Cluster
 
 def compute_clusters(db: Session):
     """

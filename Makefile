@@ -32,14 +32,10 @@ docker-down:
 docker-logs:
 	docker-compose logs -f
 
-docker-logs-api:
-	docker-compose logs -f api
 
 docker-logs-db:
 	docker-compose logs -f postgres
 
-docker-shell-api:
-	docker-compose exec api /bin/bash
 
 docker-shell-db:
 	docker-compose exec postgres /bin/bash
@@ -52,5 +48,5 @@ docker-clean:
 	docker-compose rm -f
 
 .PHONY: all help clean init-prerequisites init lint docker-build docker-up docker-down \
-        docker-logs docker-logs-api docker-logs-db docker-shell-api docker-shell-db \
+        docker-logs  docker-logs-db docker-shell-db \
         docker-psql docker-clean

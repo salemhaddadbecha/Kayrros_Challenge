@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Query, Depends, HTTPException
 from sqlalchemy.orm import Session
-from api.models import Hotspot, Cluster
+from app.models.Hotspot import Hotspot
+from app.models.Cluster import Cluster
 from utils.schemas import HotspotRead, ClusterRead
 from datetime import datetime, timedelta
 from db import get_db
@@ -27,7 +28,7 @@ def get_recent_hotspots(source: str = Query(None), db: Session = Depends(get_db)
     if source and source not in VALID_SOURCES:
         raise HTTPException(status_code=400, detail="Invalid source")
     try:
-        # Start a query on the Hotspot table
+        # Start a query on the models table
         query = db.query(Hotspot)
 
         # Calculate the datetime 24 hours ago from current UTC time

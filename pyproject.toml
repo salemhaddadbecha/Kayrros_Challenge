@@ -22,7 +22,6 @@ dependencies = [
 ]
 [tool.setuptools]
 packages = [
-    "api",
     "app",
     "db",
     "ingestion",
