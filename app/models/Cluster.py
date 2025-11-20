@@ -3,7 +3,6 @@ from sqlalchemy import (
     Column,
     Integer,
     Enum as SQLEnum,
-
 )
 from sqlalchemy.orm import relationship
 

@@ -7,6 +7,7 @@ from db import get_db
 from app.models.Hotspot import Hotspot
 from app.models.Cluster import Cluster
 
+
 def compute_clusters(db: Session):
     """
     Compute DBSCAN clustering for hotspots within the last 48 hours.

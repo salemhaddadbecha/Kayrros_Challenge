@@ -13,6 +13,7 @@ from app.models.Cluster import Cluster
 # Base class for all ORM models
 from db import Base
 
+
 # models ORM Model
 class Hotspot(Base):
     """
